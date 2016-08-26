@@ -77,7 +77,7 @@ sudo vzctl enter 102
 ip addr add 10.0.0.11/24 dev eth0
 ```
 
-![Tap1_enslaved](../images/01_02_03-bridge_both_attached.png)
+![Tap1 enslaved](../images/01_02_03-bridge_both_attached.png)
 
 The new guest (102) should now be able to ping both the other guest (101) and the host (Manual1).
 

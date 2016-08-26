@@ -6,7 +6,7 @@
 * Understand how bridged networking works
 * Basically understand what Wakame-vdc does behind the scenes.
 
-## Exercise: Start container and connect from host
+## Exercise: Start guest and connect from host
 
 Networking works the same for pretty much any VM hypervisor. Today we will use OpenVz.
 
@@ -76,6 +76,8 @@ sudo vzctl enter 101
 ip link set eth0 up
 ip addr add 10.0.0.10/24 dev eth0
 ```
+
+![IP addressed assigned](../images/01_01_101-tap0_ip_assigned.png)
 
 You should now be able to ping the host and vice versa.
 
