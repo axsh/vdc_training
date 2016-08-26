@@ -60,7 +60,7 @@ Running `ip addr show` will show you the newly created NIC called `tap0`.
 
 This NIC called `tap0` is connected directly to the *101* container's NIC: `eth0`.
 
-![OpenVz container 101 with tap0](images/01_01_101-tap0.png)
+![OpenVz container 101 with tap0](../images/01_01_101-tap0.png)
 
 We can test network connectivity between the host (Manual1) and the guest (101) by assigning an IP address to both of their NICs. Let's do the host first.
 
