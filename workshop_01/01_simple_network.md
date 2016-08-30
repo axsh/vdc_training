@@ -28,6 +28,8 @@ echo 'NETIF="ifname=eth0,bridge=br0,mac=10:54:FF:00:00:01,host_ifname=tap0,host_
 
 The above line tells the OpenVz guest to create a *veth pair* when it starts up. That means it will create a NIC on the host (Manual1) called `tap0` which is connected directly to the NIC `eth0` on the guest (101). You can imagine this as if there's a network cable with one end plugged into the host and the other end plugged into the guest.
 
+![OpenVz container 101 with tap0](../images/01_01_101-tap0.png)
+
 Let's start the guest and see the new NIC get created on the host.
 
 ```
@@ -59,8 +61,6 @@ Running `ip addr show` will show you the newly created NIC called `tap0`.
 ```
 
 This NIC called `tap0` is connected directly to the *101* container's NIC: `eth0`.
-
-![OpenVz container 101 with tap0](../images/01_01_101-tap0.png)
 
 We can test network connectivity between the host (Manual1) and the guest (101) by assigning an IP address to both of their NICs. Let's do the host first.
 
