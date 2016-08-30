@@ -67,7 +67,7 @@ Now that we have a bridge, we can create a second guest (102) and attach that to
 ```
 sudo vzctl create 102 --ostemplate centos-6-x86_64-minimal --config basic
 
-sudo bash -c "echo 'NETIF=\"ifname=eth0,bridge=br0,mac=10:54:FF:00:00:02,host_ifname=tap1,host_mac=10:54:FF:00:01:02\"' >> /etc/vz/conf/102.conf"
+sudo bash -c "echo 'NETIF=\"ifname=eth0,mac=10:54:FF:00:00:02,host_ifname=tap1,host_mac=10:54:FF:00:01:02\"' >> /etc/vz/conf/102.conf"
 
 sudo vzctl start 102
 sudo brctl addif br0 tap1
