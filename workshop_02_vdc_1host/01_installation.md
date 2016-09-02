@@ -95,3 +95,140 @@ sudo ifup br0
 ```
 
 This has done essentially the same as the bridge setup exercises in the last workshop. Only this time the bridge will be created automatically on every boot.
+
+### Configuration
+
+Copy over the default Wakame-vdc configuration files to their correct locations.
+
+```
+sudo cp /opt/axsh/wakame-vdc/dcmgr/config/dcmgr.conf.example /etc/wakame-vdc/dcmgr.conf
+sudo cp /opt/axsh/wakame-vdc/dcmgr/config/hva.conf.example /etc/wakame-vdc/hva.conf
+```
+
+Start MySQL and create the Wakame-vdc database.
+
+```
+sudo service mysqld start
+mysqladmin -uroot create wakame_dcmgr
+```
+
+Now that we have the database, next we have to create the tables in it. We can use [Rake](https://github.com/ruby/rake) to create the database tables. Wakame-vdc comes with its own ruby binary that includes Rake.
+
+```
+cd /opt/axsh/wakame-vdc/dcmgr
+/opt/axsh/wakame-vdc/ruby/bin/rake db:up
+```
+
+Wakame-vdc recognises host nodes by their *node id*. That is a unique id that AMQP uses to identify each service. We will assign the id demo1 to our HVA.
+
+Edit the file `/etc/default/vdc-hva` and uncomment the following line:
+
+```
+NODE_ID=demo1
+```
+
+Add the HVA to Wakame-vdc's database. We can use the `vdc-manage` tool for this.
+
+```
+/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage host add hva.demo1 \
+   --uuid hn-demo1 \
+   --display-name "demo HVA 1" \
+   --cpu-cores 100 \
+   --memory-size 10240 \
+   --hypervisor openvz \
+   --arch x86_64 \
+   --disk-space 102400 \
+   --force
+```
+
+Next we will need to set up machine images. Some machine images should already be prepared in your home directory. Move them to a more suitable location.
+
+```
+mv ~/images /var/lib/wakame-vdc/
+```
+
+Next we are going to add many records to Wakame-vdc's database. We will use `vdc-manage` in interactive mode. That way it only needs to make a database connection once, resulting in less overhead.
+
+```
+/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage
+```
+
+Now we have an interactive vdc-manage shell. First we are going to tell Wakame-vdc where to find machine images.
+
+```
+backupstorage add \
+  --uuid bkst-local \
+  --display-name "local storage" \
+  --base-uri "file:///var/lib/wakame-vdc/images/" \
+  --storage-type local \
+  --description "storage on the local filesystem"
+```
+
+Next we are going to register our images with Wakame-vdc. This is a two step process.
+
+First we register a *backup object*. This is basically a hard drive image.
+
+```
+backupobject add \
+  --uuid bo- \
+  --display-name "ubuntu 14.04.3 passwd login enabled" \
+  --storage-id bkst-local \
+  --object-key ubuntu-14.04.3-x86_64-30g-passwd-login-enabled.raw.tgz \
+  --container-format tgz \
+  --size=312530432 \
+  --allocation-size=312530604 \
+  --checksum=81bb27d621f2d1e90ce24625a1dcb311
+```
+
+Next we a machine image. This is an extra database record that tells Wakame-vdc that this backup object is a bootable image that we can launch instances of.
+
+```
+image add local bo-ubuntu14043ple \
+  --account-id a-shpoolxx \
+  --uuid wmi-ubuntu14043ple \
+  --root-device label:root \
+  --display-name "ubuntu 14.04.3 passwd login enabled"
+```
+
+Next we are going to register a network that instances can be started in. If you like at the bridge setup, you'll might notice that we set IP address 192.168.4.100/24 for it. This is also the network we are going to start instances in.
+
+```
+network add \
+  --uuid nw-demo1 \
+  --ipv4-network 192.168.4.0 \
+  --prefix 24 \
+  --ipv4-gw 192.168.4.1 \
+  --dns 8.8.8.8 \
+  --account-id a-shpoolxx \
+  --display-name "demo network"
+```
+
+Wakame-vdc is now aware of this network but it still doesn't know which IP addresses in it are available to assign to instances. Register a dhcp range.
+
+```
+network dhcp addrange nw-demo1 192.168.4.50 192.168.4.200
+```
+
+```
+macrange add 525400 1 ffffff --uuid mr-demomacs
+```
+
+Finally, Wakame-vdc needs to know that instances startedin network `nw-demo1` need to be attached to bridge `br0`.
+
+In `/etc/wakame-vdc/hva.conf` there is the following line.
+
+```
+dc_network('public') {
+  bridge_type 'linux'
+  interface 'eth0'
+  bridge 'br0'
+}
+```
+
+Note how this says that this associates *dc_network* `public` with bridge `br0`. If we create a *dc_network* in the database called `public` and assign our network `nw-demo1` to it, every instance in `nw-demo1` will be connected to `br0`.
+
+```
+network dc add public --uuid dcn-public --description "the network instances are started in"
+network dc add-network-mode public securitygroup
+network forward nw-demo1 public
+```
