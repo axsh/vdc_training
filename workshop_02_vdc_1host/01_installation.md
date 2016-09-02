@@ -232,3 +232,36 @@ network dc add public --uuid dcn-public --description "the network instances are
 network dc add-network-mode public securitygroup
 network forward nw-demo1 public
 ```
+
+We are done with `vdc-manage` now. Exit its shell.
+
+```
+exit
+```
+
+### Start Wakame-vdc
+
+We have to start all Wakame-vdc components before we can begin using it. If you followed this guide, MySQL should already be started but let's include it here just to be sure.
+
+```
+sudo service mysqld start
+```
+
+Next start RabbitMQ so the Wakame-vdc components can communicate using AMQP.
+
+```
+sudo service rabbitmq-server start
+```
+
+Now start the Wakame-vdc processes themselves.
+
+```
+sudo start vdc-dcmgr
+sudo start vdc-collector
+sudo start vdc-hva
+sudo start vdc-webui
+```
+
+We have now effectively created the following environment.
+
+![Wakame installed with no instances started](images/02_01_02_wakame_1host_no_instances.png)
