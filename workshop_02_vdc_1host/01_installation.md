@@ -144,7 +144,7 @@ Add the HVA to Wakame-vdc's database. We can use the `vdc-manage` tool for this.
 Next we will need to set up machine images. Some machine images should already be prepared in your home directory. Move them to a more suitable location.
 
 ```
-mv ~/images /var/lib/wakame-vdc/
+sudo mv ~/images /var/lib/wakame-vdc/
 ```
 
 Next we are going to add many records to Wakame-vdc's database. We will use `vdc-manage` in interactive mode. That way it only needs to make a database connection once, resulting in less overhead.
@@ -170,7 +170,7 @@ First we register a *backup object*. This is basically a hard drive image.
 
 ```
 backupobject add \
-  --uuid bo- \
+  --uuid bo-ubuntu14043ple \
   --display-name "ubuntu 14.04.3 passwd login enabled" \
   --storage-id bkst-local \
   --object-key ubuntu-14.04.3-x86_64-30g-passwd-login-enabled.raw.tgz \
@@ -259,8 +259,38 @@ Now start the Wakame-vdc processes themselves.
 sudo start vdc-dcmgr
 sudo start vdc-collector
 sudo start vdc-hva
-sudo start vdc-webui
 ```
+
+Check the logs to make sure the Wakame-vdc services have started correctly.
+
+```
+cat /var/log/wakame-vdc/dcmgr.log 
+
+I, [2016-09-02T15:48:28.633128 #2154]  INFO -- : listening on addr=0.0.0.0:9001 fd=9
+I, [2016-09-02T15:48:28.633330 #2154]  INFO -- : worker=0 spawning...
+I, [2016-09-02T15:48:28.634403 #2154]  INFO -- : master process ready
+I, [2016-09-02T15:48:28.635069 #2185]  INFO -- : worker=0 spawned pid=2185
+I, [2016-09-02T15:48:28.635273 #2185]  INFO -- : Refreshing Gem list
+I, [2016-09-02T15:48:32.524277 #2185]  INFO -- : worker=0 ready
+```
+
+```
+cat /var/log/wakame-vdc/collector.log 
+
+2016-09-02 15:48:29 Node thr=#<Thread:0x007fdf7d593d50> [INFO]: Started : AMQP Server=amqp://127.0.0.1/, ID=collector.master, token=bb8cc
+```
+
+```
+cat /var/log/wakame-vdc/hva.log 
+
+I, [2016-09-02T15:48:30.102388 #2162]  INFO -- NetfilterCache: updating cache from database
+D, [2016-09-02T15:48:30.102813 #2162] DEBUG -- ServiceNetfilter: Subscribing to: hva.demo1/vnic_created
+D, [2016-09-02T15:48:30.103627 #2162] DEBUG -- ServiceNetfilter: Subscribing to: hva.demo1/vnic_destroyed
+D, [2016-09-02T15:48:30.103883 #2162] DEBUG -- ServiceNetfilter: Subscribing to: broadcast/debug/vnet
+2016-09-02 15:48:30 Node thr=#<Thread:0x007f4e6cd93d40> [INFO]: Started : AMQP Server=amqp://127.0.0.1/, ID=hva.demo1, token=ca94f
+```
+
+If your logs had similar contents to the above, you are good to go and can start using Wakame-vdc. If there was an error in any of the logs, double check all of the configuration and troubleshoot.
 
 We have now effectively created the following environment.
 
