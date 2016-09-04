@@ -111,3 +111,116 @@ mussel instance show i-f31cp932 | grep -e '^:state'
 We need the state to be `running`. If it says `scheduling`, `pending` or `initializing` then the instance is still starting up. Wait a few seconds and try again. If it says `terminated` then something went wrong. Check the files in `/var/log/wakame-vdc` for errors.
 
 Once we have reached state running, our instance is ready.
+
+You will be able to log into your instance using vzctl.
+
+```
+sudo vzctl enter i-f31cp932
+```
+
+However, logging in with vzctl is not the way to use Wakame-vdc. Usually you will want to have network connectivity to your instances and log into them from a remote location. Exit the instance again.
+
+```
+exit
+```
+
+Let's see what IP address Wakame-vdc has assigned to our instance.
+
+```
+mussel instance show i-f31cp932
+```
+
+In the output, find the part that looks like this:
+
+```
+:vif:
+- :vif_id: vif-se50xbbh
+  :network_id: nw-demo1
+  :ipv4:
+    :address: 192.168.4.50
+    :nat_address: 
+  :security_groups: []
+```
+
+Back when we created the instance, we provided `{"eth0":{"network":"nw-demo1"}}` as the vifs parameter. VIFs stands for virtual interfaces. It's the NICs we want the instance to have. We told it we want one interface and connect it to network `nw-demo1`.
+
+The output of the above command shows us that the instance indeed has a NIC that is connected to network `nw-demo1` and has IP address `192.168.4.50`. In order to log into the instance, we need to use SSH with the key pair registered before.
+
+```
+ssh -i ~/ssh_keys/demo_key.pem ubuntu@192.168.4.50
+```
+
+While this is the correct command, you will notice that you can not establish an SSH connection to the instance. Why is that? Because of the firewall.
+
+![Firewall blocking SSH](02_02_01_instance_firewall.png)
+
+Wakame-vdc's firewall is implemented using iptables and ebtables. You can see the exact rules applied using the following commands.
+
+```
+sudo iptables-save
+sudo ebtables-save
+```
+
+There is also an option to use [OpenVNet](http://axsh.jp/openvnet/) instead to manage networking including firewalls but that is beyond the scope of this training.
+
+By default **all incoming network traffic is blocked.** To change this you have to add *security groups* to the instance's NICs. First of all let's create a security group that opens tcp port 22, the SSH port for every source IP address.
+
+```
+mussel security_group create --rule "tcp:22,22,ip4:0.0.0.0"
+```
+
+The output should look like this. Again make note of the id. `sg-wavx6zxz` in the example.
+
+```
+---
+:id: sg-wavx6zxz
+:account_id: a-shpoolxx
+:uuid: sg-wavx6zxz
+:created_at: 2016-09-04 08:24:01.000000000 Z
+:updated_at: 2016-09-04 08:24:01.000000000 Z
+:description: 
+:rule: tcp:22,22,ip4:0.0.0.0
+:service_type: std
+:display_name: ''
+:labels: []
+:rules:
+- :ip_protocol: tcp
+  :ip_fport: 22
+  :ip_tport: 22
+  :protocol: ip4
+  :ip_source: 0.0.0.0/0
+```
+
+Now that we have the security group, we have to place the instance's NIC in it. First find the unique ID of the instance's NIC.
+
+```
+mussel instance show i-f31cp932
+```
+
+In the output, find the part that looks like this:
+
+```
+:vif:
+- :vif_id: vif-se50xbbh
+  :network_id: nw-demo1
+  :ipv4:
+    :address: 192.168.4.50
+    :nat_address: 
+  :security_groups: []
+```
+
+The `vif_id` part shows us the unique ID we need. In this case it is `vif-se50xbbh`.
+
+Now place NIC `vif-se50xbbh` in security group `sg-wavx6zxz` with the following command. Make sure to replace the example IDs with the ones in your environment.
+
+```
+mussel network_vif add_security_group vif-se50xbbh --security_group_id sg-wavx6zxz
+```
+
+Now port 22 has opened in the firewall and we should be able to SSH into the instance.
+
+```
+ssh -i ~/ssh_keys/demo_key.pem ubuntu@192.168.4.50
+```
+
+For more information on security groups, read [the guide on wakame-vdc.org](http://wakame-vdc.org/security-groups/).
