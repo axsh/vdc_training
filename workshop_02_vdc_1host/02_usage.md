@@ -152,7 +152,7 @@ ssh -i ~/ssh_keys/demo_key.pem ubuntu@192.168.4.50
 
 While this is the correct command, you will notice that you can not establish an SSH connection to the instance. Why is that? Because of the firewall.
 
-![Firewall blocking SSH](02_02_01_instance_firewall.png)
+![Firewall blocking SSH](images/02_02_01_instance_firewall.png)
 
 Wakame-vdc's firewall is implemented using iptables and ebtables. You can see the exact rules applied using the following commands.
 
