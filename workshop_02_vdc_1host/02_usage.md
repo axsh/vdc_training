@@ -55,8 +55,59 @@ This should give you output similar to this:
 
 Make note of the `id` line. In this example it is `ssh-hzfltyzd` but it will be something else for you. We are going to need this later so write it down.
 
-If you ever forgot, you can use the following command to check it.
+If you ever forget, you can use the following command to check it.
 
 ```
 mussel ssh_key_pair index
 ```
+
+Now that we have an SSH key pair set up, we are able to start an instance.
+
+```
+echo '{"eth0":{"network":"nw-demo1"}}' > /tmp/vifs.json
+
+mussel instance create \
+  --cpu-cores 1 \
+  --hypervisor openvz \
+  --image-id wmi-ubuntu14043ple \
+  --memory-size 256 \
+  --ssh-key-id ssh-hzfltyzd \
+  --vifs /tmp/vifs.json \
+  --display-name "my first instance"
+```
+
+The output of this command should be similar to this.
+
+```
+---
+:id: i-f31cp932
+:account_id: a-shpoolxx
+:host_node: 
+:cpu_cores: 1
+:memory_size: 256
+:arch: x86_64
+:image_id: wmi-ubuntu14043ple
+:created_at: 2016-09-04 07:28:13.000000000 Z
+:updated_at: 2016-09-04 07:28:13.076308328 Z
+:terminated_at: 
+:deleted_at: 
+:state: scheduling
+:status: init
+:ssh_key_pair:
+  :uuid: ssh-hzfltyzd
+  :display_name: demokey
+
+--snip--
+```
+
+Again make note of the **id** line. This is the unique ID that Wakame-vdc uses to identify your instance. In this example it is `i-f31cp932` but it will be something else for you.
+
+Check the state of your instance.
+
+```
+mussel instance show i-f31cp932 | grep -e '^:state'
+```
+
+We need the state to be `running`. If it says `scheduling`, `pending` or `initializing` then the instance is still starting up. Wait a few seconds and try again. If it says `terminated` then something went wrong. Check the files in `/var/log/wakame-vdc` for errors.
+
+Once we have reached state running, our instance is ready.
