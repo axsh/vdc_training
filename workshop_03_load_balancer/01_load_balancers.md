@@ -6,7 +6,20 @@
 
 ## Assignment
 
-Wakame-vdc's load balancing feature is actually a special instance running [haproxy](http://www.haproxy.org).
+Wakame-vdc's load balancing feature is actually a special instance running [haproxy](http://www.haproxy.org). This instance will have two NICs that will each be connected to a different network. Those two networks are:
+
+* The instances network
+
+  This is the one we configured last in the previous workshop. All instances are connected to this. The load balancer needs to be connected to it too so it can pass traffic on to the other instances.
+
+
+* The management network
+
+  This is the network on which RabbitMQ, DCMGR and the other Wakame-vdc components are listening. The load balancer needs to have access to this network because Wakame-vdc will sends it commands over AMQP. For example if a new instance gets registered to this load balancer, Wakame-vdc will automatically apply the correct configuration this way.
+
+![Management network Vs instances network](images/03_01_01_management_vs_instances_network.png)
+
+![LB bridged network setup](images/03_01_02_LB_bridged_setup.png)
 
 The machine image for this special instance was provided on the **Wakame1** VM and if you followed the instructions in [01_installation.md](01_installation.md) correctly, it should be located at `/var/lib/wakame-vdc/images/lb-centos6.6-stud.x86_64.openvz.md.raw.tar.gz`
 
@@ -73,14 +86,35 @@ service_type("lb", "LbServiceType") {
 }
 ```
 
-This is where the configuration for the load balancer is set. In the previous step we have registered an image with uuid `wmi-haproxy1d64`. We have to take the following line:
+This is where the configuration for the load balancer is set. Let's walk through it line by line.
 
 ```
   image_id 'wmi-demolb'
 ```
 
-and change it into:
+First we have this line. Like we mentioned before, the load balancer is really just another instance. That's why Wakame-vdc needs to know which machine image to use for it. This line tells Wakame-vdc to use the image with uuid `wmi-demolb` when starting a load balancer.
+
+However, there currently is not image with `wmi-demolb` registered. Instead, we have just registered a machine image with uuid `wmi-haproxy1d64`. We have to tell Wakame-vdc to use this one.
+
+Change the line to look like this:
 
 ```
   image_id 'wmi-haproxy1d64'
 ```
+
+Next let's take a look at the following two lines.
+
+```
+  instances_network 'nw-demo1'
+  management_network 'nw-demo8'
+```
+
+These tell Wakame-vdc what networks the load balancer should be connected to. A load balancer always has 2 NICs:
+
+* Management NIC: This NIC is used to connect to RabbitMQ. Wakame-vdc will send AMQP messages to the load balancer to dynamically update the instances registered to it and other configuration.
+
+* Instances NIC: This is the NIC that is used to pass the actual load balanced traffic to instances.
+
+It is possible to set these to the same network but that will mean that all instances will also have access to RabbitMQ and the Wakame-vdc Web API. Only do this if there is no untrusted parties accessing the instances.
+
+Let's add a second network called `nw-manage`
