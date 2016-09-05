@@ -293,3 +293,13 @@ The output should look similar to this:
 - :port: 80
   :protocol: http
 ```
+
+Again make note of the `id` (or `uuid`) line. In the example it's `lb-o5osuocx`. Use it to check the state of your load balancer.
+
+```
+mussel load_balancer show lb-o5osuocx | grep -e '^:state'
+```
+
+We need the state to be `running`. If it says `scheduling`, `pending` or `initializing` then the instance is still starting up. Wait a few seconds and try again. If it says `terminated` then something went wrong. Check the files in `/var/log/wakame-vdc` for errors.
+
+Once we have reached state running, our load balancer is ready.
