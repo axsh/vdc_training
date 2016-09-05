@@ -12,7 +12,6 @@ Wakame-vdc's load balancing feature is actually a special instance running [hapr
 
   This is the one we configured last in the [previous workshop](../workshop_02_vdc_1host/01_installation.md). All instances are connected to this. The load balancer needs to be connected to it too so it can pass traffic on to the other instances.
 
-
 * The management network
 
   This is the network on which RabbitMQ, DCMGR and the other Wakame-vdc components are listening. The load balancer needs to have access to this network because Wakame-vdc will sends it commands over AMQP. For example if a new instance gets registered to this load balancer, Wakame-vdc will automatically apply the correct configuration this way.
@@ -53,9 +52,33 @@ We will use this bridge and subnet 172.16.0.0/24 as our management network. Regi
   --account-id a-shpoolxx \
   --service-type lb \
   --display-name "management network"
+
+/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage network dhcp addrange nw-mngmnt 172.16.0.50 172.16.0.200
 ```
 
 Notice the option `--service-type lb`. This tells Wakame-vdc that this network is intended for load balancders. When using the GUI, it will not be offered as a network to start regular instances in.
+
+Now that we have the network added, we have to make sure that instances in this network get attached to the bridge **br1**.
+
+In `/etc/wakame-vdc/hva.conf` find the part that looks like this.
+
+```
+dc_network('management') {
+  bridge_type 'linux'
+  interface 'eth1'
+  bridge 'br1'
+}
+```
+
+We have seen this before in the previous workshop. We have to create a `dc_network` named management and assign network `nw-mngmnt` to it.
+
+```
+/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage
+
+network dc add management --uuid dcn-management --description "The management line"
+network dc add-network-mode management passthrough
+network forward nw-mngmnt management
+```
 
 Next we will registere the machine image. As we mentioned before, the load balancer is really just an instance running [haproxy](http://www.haproxy.org). The machine image for this special instance was provided on the **Wakame1** VM.
 
@@ -64,7 +87,6 @@ If you followed the instructions in [01_installation.md](01_installation.md) cor
 Register it to the Wakame-vdc database using `vdc-manage`.
 
 ```
-/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage
 ```
 
 We have to register the load balancer in a similar way we registered machine images in the previous workshop. First register the backup object. (= hard drive image)
@@ -73,13 +95,13 @@ We have to register the load balancer in a similar way we registered machine ima
 backupobject add \
   --storage-id=bkst-local \
   --uuid=bo-haproxy1d64 \
-  --display-name='lb-centos6.6-stud.x86_64.kvm.md.raw.tar.gz' \
-  --object-key=lb-centos6.6-stud.x86_64.kvm.md.raw.tar.gz \
+  --display-name='lb-centos6.6-stud.x86_64.openvz.md.raw.tar.gz' \
+  --object-key=lb-centos6.6-stud.x86_64.openvz.md.raw.tar.gz \
   --size=2147483648 \
   --allocation-size=470420388 \
   --checksum=cafbe29e468be992e49b68285bb759db \
   --container-format=tgz \
-  --description='lb-centos6.6-stud.x86_64.kvm.md.raw.tar.gz'
+  --description='lb-centos6.6-stud.x86_64.openvz.md.raw.tar.gz'
 ```
 
 Next we add the machine image which again means that this backup object is bootable as an instance.
@@ -95,10 +117,16 @@ image add local bo-haproxy1d64 \
   --service-type lb \
   --is-public \
   --display-name 'haproxy1d64' \
-  --is-cacheable\
+  --is-cacheable
 ```
 
 Notice again that the `service type` is set to `lb` this time. That will tell Wakame-vdc to treat this image as a load balancer.
+
+We are done with `vdc-manage` now.
+
+```
+exit
+```
 
 Next open `/etc/wakame-vdc/dcmgr.conf` in a text editor.
 
@@ -184,4 +212,84 @@ This line tells load balancers where they can find RabbitMQ. In our environment 
 
 ```
   amqp_server_uri 'amqp://172.16.0.10/'
+```
+
+Restart DCMGR and Collector to load the changed configuration file.
+
+```
+sudo restart vdc-dcmgr
+sudo restart vdc-collector
+```
+
+The final contents should look something like this:
+
+```
+service_type("lb", "LbServiceType") {
+  image_id 'wmi-haproxy1d64'
+  instances_network 'nw-demo1'
+  management_network 'nw-mngmnt'
+  host_node_scheduler :LeastUsage
+  storage_node_scheduler :LeastUsage
+  network_scheduler :VifsRequestParam
+  mac_address_scheduler :ByHostNodeGroup do
+    default 'mr-demomacs'
+
+    pair 'hng-shhost', 'mr-range1'
+  end
+
+  # Please specify the addresses that can be referenced from within an instance of the load balancer.
+  # amqp_server_uri is saved to userdata in instance of the load balancer.
+  amqp_server_uri 'amqp://172.16.0.10/'
+}
+```
+
+Unfortunately there is currently a bug in Wakame-vdc causing a configuration file required by load balancers not to be in the correct place. The following commands will fix that.
+
+```
+cd /opt/axsh/wakame-vdc/dcmgr/config/convert_specs/
+sudo rm load_balancer.yml
+sudo cp load_balancer.yml.example load_balancer.yml
+```
+
+You are now ready to start your first load balancer.
+
+```
+mussel load_balancer create \
+  --balance-algorithm leastconn \
+  --display-name "my_first_load_balancer" \
+  --instance_port 80 \
+  --instance_protocol http \
+  --max_connection 1000 \
+  --port 80 \
+  --protocol http
+```
+
+The output should look similar to this:
+
+```
+:id: lb-o5osuocx
+:uuid: lb-o5osuocx
+:account_id: a-shpoolxx
+:instance_id: i-22dpge8q
+:instance_protocol: http
+:instance_port: 80
+:balance_algorithm: leastconn
+:cookie_name: 
+:description: ''
+:private_key: ''
+:public_key: ''
+:created_at: 2016-09-05 09:40:11.000000000 Z
+:updated_at: 2016-09-05 09:40:11.000000000 Z
+:deleted_at: 
+:display_name: my_first_load_balancer
+:allow_list:
+- 0.0.0.0
+:httpchk_path: ''
+:state: scheduling
+:status: init
+:target_vifs: []
+:vif: []
+:inbounds:
+- :port: 80
+  :protocol: http
 ```
