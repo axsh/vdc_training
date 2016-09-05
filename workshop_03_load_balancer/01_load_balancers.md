@@ -10,7 +10,7 @@ Wakame-vdc's load balancing feature is actually a special instance running [hapr
 
 * The instances network
 
-  This is the one we configured last in the previous workshop. All instances are connected to this. The load balancer needs to be connected to it too so it can pass traffic on to the other instances.
+  This is the one we configured last in the [previous workshop](../workshop_02_vdc_1host/01_installation.md). All instances are connected to this. The load balancer needs to be connected to it too so it can pass traffic on to the other instances.
 
 
 * The management network
@@ -21,7 +21,45 @@ Wakame-vdc's load balancing feature is actually a special instance running [hapr
 
 ![LB bridged network setup](images/03_01_02_LB_bridged_setup.png)
 
-The machine image for this special instance was provided on the **Wakame1** VM and if you followed the instructions in [01_installation.md](01_installation.md) correctly, it should be located at `/var/lib/wakame-vdc/images/lb-centos6.6-stud.x86_64.openvz.md.raw.tar.gz`
+First let's set up this new network. We should still be logged into the machine labeled **Wakame1**. If not, log into it with your SSH client.
+
+First let's set up the management network. Create the file `/etc/sysconfig/network-scripts/ifcfg-br1` with the following contents:
+
+```
+DEVICE=br1
+TYPE=Bridge
+BOOTPROTO=static
+ONBOOT=yes
+NM_CONTROLLED=no
+IPADDR=172.16.0.10
+NETMASK=255.255.255.0
+DNS1=8.8.8.8
+DELAY=0
+```
+
+This will create a new bridge called `br1` every time the server boots. Since we don't want to reboot right now, we can bring it up with the following command:
+
+```
+sudo ifup br1
+```
+
+We will use this bridge and subnet 172.16.0.0/24 as our management network. Register it using `vdc-manage`.
+
+```
+/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage network add \
+  --uuid nw-mngmnt \
+  --ipv4-network 172.16.0.0 \
+  --prefix 24 \
+  --account-id a-shpoolxx \
+  --service-type lb \
+  --display-name "management network"
+```
+
+Notice the option `--service-type lb`. This tells Wakame-vdc that this network is intended for load balancders. When using the GUI, it will not be offered as a network to start regular instances in.
+
+Next we will registere the machine image. As we mentioned before, the load balancer is really just an instance running [haproxy](http://www.haproxy.org). The machine image for this special instance was provided on the **Wakame1** VM.
+
+If you followed the instructions in [01_installation.md](01_installation.md) correctly, it should be located at `/var/lib/wakame-vdc/images/lb-centos6.6-stud.x86_64.openvz.md.raw.tar.gz`
 
 Register it to the Wakame-vdc database using `vdc-manage`.
 
@@ -60,7 +98,7 @@ image add local bo-haproxy1d64 \
   --is-cacheable\
 ```
 
-Notice that the `service type` is set to `lb` this time. That will tell Wakame-vdc to treat this image as a load balancer.
+Notice again that the `service type` is set to `lb` this time. That will tell Wakame-vdc to treat this image as a load balancer.
 
 Next open `/etc/wakame-vdc/dcmgr.conf` in a text editor.
 
@@ -109,12 +147,41 @@ Next let's take a look at the following two lines.
   management_network 'nw-demo8'
 ```
 
-These tell Wakame-vdc what networks the load balancer should be connected to. A load balancer always has 2 NICs:
+These lines tell Wakame-vdc which networks to use as the instances network and management network respectively when starting instances.
 
-* Management NIC: This NIC is used to connect to RabbitMQ. Wakame-vdc will send AMQP messages to the load balancer to dynamically update the instances registered to it and other configuration.
+The instances network line is correct since in the previous workshop, we created a network with uuid `nw-demo1` and are already using that to start instances in.
 
-* Instances NIC: This is the NIC that is used to pass the actual load balanced traffic to instances.
+The `management_network` line will need to be changed. In this workshop we have created a management network with uuid `nw-mngmnt `. Fill it in here.
+
+```
+  management_network 'nw-mngmnt'
+```
 
 It is possible to set these to the same network but that will mean that all instances will also have access to RabbitMQ and the Wakame-vdc Web API. Only do this if there is no untrusted parties accessing the instances.
 
-Let's add a second network called `nw-manage`
+Next we have the scheduler lines.
+
+```
+  host_node_scheduler :LeastUsage
+  storage_node_scheduler :LeastUsage
+  network_scheduler :VifsRequestParam
+  mac_address_scheduler :ByHostNodeGroup do
+    default 'mr-demomacs'
+
+    pair 'hng-shhost', 'mr-range1'
+  end
+```
+
+This configuration is used by collector when assigning the HVA, storage, network, IP Address and MAC address to assign to the load balancers. We do not need to change it.
+
+Finall there is this line.
+
+```
+  amqp_server_uri 'amqp://example.com/'
+```
+
+This line tells load balancers where they can find RabbitMQ. In our environment RabbitMQ is running on the **Wakame1** machine and we have just set up **Wakame1** with a NIC in the management network that has IP address `172.16.0.10`. Fill in that IP address here.
+
+```
+  amqp_server_uri 'amqp://172.16.0.10/'
+```
