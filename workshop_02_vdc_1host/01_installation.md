@@ -230,6 +230,7 @@ Note how this says that this associates *dc_network* `public` with bridge `br0`.
 ```
 network dc add public --uuid dcn-public --description "the network instances are started in"
 network dc add-network-mode public securitygroup
+network dc del-network-mode public passthrough
 network forward nw-demo1 public
 ```
 
