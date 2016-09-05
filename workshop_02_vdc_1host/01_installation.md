@@ -200,7 +200,7 @@ network add \
   --ipv4-gw 192.168.4.1 \
   --dns 8.8.8.8 \
   --account-id a-shpoolxx \
-  --display-name "demo network"
+  --display-name "instances network"
 ```
 
 Wakame-vdc is now aware of this network but it still doesn't know which IP addresses in it are available to assign to instances. Register a dhcp range.
