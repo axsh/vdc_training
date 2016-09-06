@@ -37,3 +37,37 @@ mussel instance show i-dy7rn5cx | grep -e '^:state'
 Now we will assume that this environment is always up. There is always one web server instance running but on peek times we want to increase the amount of web server instances.
 
 First let's make a script that automatically starts a bunch of instances and another script to automatically shut them down.
+
+```
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+UUID_FILE="$DIR/instance_uuids.txt"
+
+LB_UUID="lb-gbe0lluu"
+
+for i in 2 3 4; do
+  output=$(mussel instance create \
+    --cpu-cores 1 \
+    --hypervisor openvz \
+    --image-id wmi-lbnode1d64 \
+    --memory-size 256 \
+    --ssh-key-id ssh-hzfltyzd \
+    --vifs /tmp/vifs.json \
+    --display-name "lbnode$i")
+
+  echo "$output" | grep -e '^:id:' | cut -d ' ' -f2 >> "$UUID_FILE"
+done
+
+for uuid in $(cat "$UUID_FILE"); do
+  echo "Waiting for running: "$uuid""
+  while [[ $(mussel instance show "$uuid" | grep -e '^:state') != ":state: running" ]]; do
+    sleep 2
+  done
+  echo "Instance running: $uuid"
+
+  echo "Registering instance to LB"
+  vif=$(mussel instance show "$uuid" | grep ":vif_id:" | cut -d ' ' -f 3)
+  mussel load_balancer register "$LB_UUID" --vifs "$vif"
+done
+```
