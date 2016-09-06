@@ -2,7 +2,7 @@
 
 ## Goals
 
-* Learn how to set up and use Wakame-vdc's load balancing feature
+* Learn how to set up Wakame-vdc's load balancers
 
 ## Assignment
 
@@ -300,6 +300,6 @@ Again make note of the `id` (or `uuid`) line. In the example it's `lb-o5osuocx`.
 mussel load_balancer show lb-o5osuocx | grep -e '^:state'
 ```
 
-We need the state to be `running`. If it says `scheduling`, `pending` or `initializing` then the instance is still starting up. Wait a few seconds and try again. If it says `terminated` then something went wrong. Check the files in `/var/log/wakame-vdc` for errors.
+We need the state to be `running`. If it says `scheduling`, `pending` or `initializing` then the load balancer is still starting up. Wait a few seconds and try again. If it says `terminated` then something went wrong. Check the files in `/var/log/wakame-vdc` for errors.
 
-Once we have reached state running, our load balancer is ready.
+Once we have reached state `running`, our load balancer is ready.
