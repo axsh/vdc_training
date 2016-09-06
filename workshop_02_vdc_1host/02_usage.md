@@ -74,6 +74,8 @@ mussel instance create \
   --ssh-key-id ssh-hzfltyzd \
   --vifs /tmp/vifs.json \
   --display-name "my first instance"
+
+rm /tmp/vifs.json
 ```
 
 The output of this command should be similar to this.
