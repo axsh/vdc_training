@@ -71,3 +71,50 @@ for uuid in $(cat "$UUID_FILE"); do
   mussel load_balancer register "$LB_UUID" --vifs "$vif"
 done
 ```
+
+Let's save this as `/home/centos/autoscale_script/scale_up.sh`.
+
+Next let's also write a script that scales down again.
+
+```
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+UUID_FILE="$DIR/instance_uuids.txt"
+
+LB_UUID="lb-gbe0lluu"
+
+for uuid in $(cat "$UUID_FILE"); do
+  vif=$(mussel instance show "$uuid" | grep ":vif_id:" | cut -d ' ' -f 3)
+  mussel load_balancer unregister "$LB_UUID" --vifs "$vif"
+
+  mussel instance destroy "$uuid"
+done
+
+rm "$UUID_FILE"
+```
+
+Let's save this as `/home/centos/autoscale_script/scale_down.sh`.
+
+Now that we have scripts to scale up and down, the only thing left to do is set up a Cron job.
+
+https://www.centos.org/docs/5/html/Deployment_Guide-en-US/ch-autotasks.html
+
+Open the file `/etc/crontab` and add entries for the time to scale up and down.
+
+Examples:
+
+```
+# Scale up at every X:10 (01:10, 02:10 ... 21:10 ...)
+10 * * * * centos /home/centos/autoscale_script/scale_up.sh
+
+# Scale down at every X:20 (01:20, 02:20 ... 21:20 ...)
+20 * * * * centos /home/centos/autoscale_script/scale_down.sh
+
+
+# Scale up every day at 17:00
+0 17 * * * centos /home/centos/autoscale_script/scale_up.sh
+
+# Scale down every day at 22:00
+0 22 * * * centos /home/centos/autoscale_script/scale_up.sh
+```
