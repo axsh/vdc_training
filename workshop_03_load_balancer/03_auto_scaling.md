@@ -118,3 +118,11 @@ Examples:
 # Scale down every day at 22:00
 0 22 * * * centos /home/centos/autoscale_script/scale_up.sh
 ```
+
+Every time you change this file, you will have to restart the Cron daemon.
+
+```
+sudo service crond restart
+```
+
+For more information about scheduling Cron tasks, just google around. It is a very commonly used tool and there is loads of documentation out there.
