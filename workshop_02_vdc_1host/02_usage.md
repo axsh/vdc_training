@@ -222,3 +222,12 @@ ssh -i ~/ssh_keys/demo_key.pem ubuntu@192.168.4.50
 ```
 
 For more information on security groups, read [the guide on wakame-vdc.org](http://wakame-vdc.org/security-groups/).
+
+Now's a good time to play around with Wakame-vdc a bit, creating more instances and security groups. Once you're done with them you can delete them using commands like this.
+
+```
+mussel instance destroy i-f31cp932
+mussel security_group destroy sg-wavx6zxz
+```
+
+You could also try [installing the GUI](03_gui.md)
