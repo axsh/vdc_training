@@ -90,7 +90,7 @@ DELAY=0
 
 This has done essentially the same as the bridge setup exercises in the last workshop. Only this time the bridge will be created automatically on every boot.
 
-Next we need to attach `eth0` to the bridge. Modify the file `/etc/sysconfig/network-scripts/ifcfg-eth0` with the following contents.
+Next we need to enslave `eth0` to the bridge. Modify the file `/etc/sysconfig/network-scripts/ifcfg-eth0` with the following contents.
 
 ```
 DEVICE="eth0"
@@ -130,7 +130,7 @@ cd /opt/axsh/wakame-vdc/dcmgr
 /opt/axsh/wakame-vdc/ruby/bin/rake db:up
 ```
 
-Wakame-vdc recognises host nodes by their *node id*. That is a unique id that AMQP uses to identify each service. We will assign the id demo1 to our HVA.
+Wakame-vdc recognises host nodes by their *node id*. That is a unique id that RabbitMQ uses to identify each service. We will assign the id demo1 to our HVA.
 
 Edit the file `/etc/default/vdc-hva` and uncomment the following line:
 
