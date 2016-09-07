@@ -298,3 +298,65 @@ mussel load_balancer show lb-o5osuocx | grep -e '^:state'
 We need the state to be `running`. If it says `scheduling`, `pending` or `initializing` then the load balancer is still starting up. Wait a few seconds and try again. If it says `terminated` then something went wrong. Check the files in `/var/log/wakame-vdc` for errors.
 
 Once we have reached state `running`, our load balancer is ready.
+
+Check the load balancer's IP address in the instances network.
+
+```
+mussel load_balancer show lb-o5osuocx
+
+
+:id: lb-o5osuocx
+:uuid: lb-o5osuocx
+:account_id: a-shpoolxx
+:instance_id: i-22dpge8q
+:instance_protocol: http
+:instance_port: 80
+:balance_algorithm: leastconn
+:cookie_name: 
+:description: ''
+:private_key: ''
+:public_key: ''
+:created_at: 2016-09-05 09:40:11.000000000 Z
+:updated_at: 2016-09-05 09:40:11.000000000 Z
+:deleted_at: 
+:display_name: my_first_load_balancer
+:allow_list:
+- 0.0.0.0
+:httpchk_path: ''
+:state: scheduling
+:status: init
+:target_vifs: []
+:vif:
+- :vif_id: vif-8ls6d5m3
+  :vif_index: 0
+  :network_id: nw-demo1
+  :ipv4:
+    :address: 192.168.4.51 # <= This is what we're looking for.
+    :nat_address: 
+- :vif_id: vif-e5o9oomj
+  :vif_index: 1
+  :network_id: nw-mngmnt
+  :ipv4:
+    :address: 172.16.0.50
+    :nat_address: 
+
+:inbounds:
+- :port: 80
+  :protocol: http
+```
+
+Try making a http request to that IP address.
+
+```
+curl 192.168.4.51
+```
+
+The output should be this.
+
+```
+<html><body><h1>503 Service Unavailable</h1>
+No server is available to handle this request.
+</body></html>
+```
+
+That means your load balancer is working as expected. It just doesn't have any instances registered to it yet. To get that taken care of, move on to the [next exercise](02_lb_node.md).

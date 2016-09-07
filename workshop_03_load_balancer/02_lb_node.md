@@ -35,6 +35,8 @@ image add local bo-lbnode1d64 \
   --is-public \
   --display-name 'lbnode1d64' \
   --is-cacheable
+
+exit
 ```
 
 This image has a web server that returns the uuid of the instance. This will allow us to test load balancers.
@@ -51,7 +53,7 @@ mussel instance create \
   --memory-size 256 \
   --ssh-key-id ssh-hzfltyzd \
   --vifs /tmp/vifs.json \
-  --display-name "LBNode\ instance\ A"
+  --display-name "LBNodeA"
 
 mussel instance create \
   --cpu-cores 1 \
@@ -60,7 +62,7 @@ mussel instance create \
   --memory-size 256 \
   --ssh-key-id ssh-hzfltyzd \
   --vifs /tmp/vifs.json \
-  --display-name "LBNode\ instance\ B"
+  --display-name "LBNodeB"
 
 rm /tmp/vifs.json
 ```
@@ -92,7 +94,15 @@ mussel load_balancer register lb-o5osuocx --vifs vif-auvahnef
 mussel load_balancer register lb-o5osuocx --vifs vif-urd0y302
 ```
 
-Now when you surf to the load balancer's IP address, you will see that requests are being redirected to Instance A and Instance B in turn.
+Now when you make a http request to the load balancer's IP address, you will see that requests are being redirected to Instance A and Instance B in turn.
+
+```
+curl 192.168.4.51
+#Output: i-4qm2geq9
+
+curl 192.168.4.51
+#Output: i-8va6g9cr
+```
 
 We're done. When we're ready to tear down our environment again, we can do it with these commands.
 
