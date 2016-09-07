@@ -307,3 +307,5 @@ If your logs had similar contents to the above, you are good to go and can start
 We have now effectively created the following environment.
 
 ![Wakame installed with no instances started](images/02_01_02_wakame_1host_no_instances.png)
+
+Time to move on to the [usage](02_usage.md) workshop.
