@@ -84,12 +84,7 @@ Next we will registere the machine image. As we mentioned before, the load balan
 
 If you followed the instructions in [01_installation.md](01_installation.md) correctly, it should be located at `/var/lib/wakame-vdc/images/lb-centos6.6-stud.x86_64.openvz.md.raw.tar.gz`
 
-Register it to the Wakame-vdc database using `vdc-manage`.
-
-```
-```
-
-We have to register the load balancer in a similar way we registered machine images in the previous workshop. First register the backup object. (= hard drive image)
+Register it to the Wakame-vdc database using `vdc-manage`. We have to register the load balancer in a similar way we registered machine images in the previous workshop. First register the backup object. (= hard drive image)
 
 ```
 backupobject add \
