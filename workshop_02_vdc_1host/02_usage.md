@@ -195,11 +195,7 @@ The output should look like this. Again make note of the id. `sg-wavx6zxz` in th
 
 Now that we have the security group, we have to place the instance's NIC in it. First find the unique ID of the instance's NIC.
 
-```
-mussel instance show i-f31cp932
-```
-
-In the output, find the part that looks like this:
+Again look at the output we got from the `mussel instance show i-f31cp932` command.
 
 ```
 :vif:
