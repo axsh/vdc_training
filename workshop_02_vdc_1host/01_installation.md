@@ -88,13 +88,24 @@ DNS1=8.8.8.8
 DELAY=0
 ```
 
-Bring the bridge up with the following command.
-
-```
-sudo ifup br0
-```
-
 This has done essentially the same as the bridge setup exercises in the last workshop. Only this time the bridge will be created automatically on every boot.
+
+Next we need to attach `eth0` to the bridge. Modify the file `/etc/sysconfig/network-scripts/ifcfg-eth0` with the following contents.
+
+```
+DEVICE="eth0"
+ONBOOT="yes"
+BRIDGE=br0
+NM_CONTROLLED=no
+```
+
+Restart the network.
+
+**Be careful!** If you have made any mistakes setting up these files for your environment, this next command will cause networking to go down on your machine. Triple check these values if you're running this guide on a remote machine!
+
+```
+sudo service network restart
+```
 
 ### Configuration
 
