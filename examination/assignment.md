@@ -2,7 +2,7 @@
 
 ## Assignment
 
-![Assignment image](e_01_assignment.png)
+![Assignment image](images/e_01_assignment.png)
 
 #### Part 1: Install and configure Wakame-vdc
 
