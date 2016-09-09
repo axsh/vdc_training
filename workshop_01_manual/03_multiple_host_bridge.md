@@ -26,6 +26,7 @@ sudo vzctl start 103
 sudo vzctl start 104
 
 sudo brctl addbr br0
+sudo ip link set br0 up
 sudo ip addr add 10.0.0.2/24 dev br0
 
 sudo brctl addif br0 tap0
