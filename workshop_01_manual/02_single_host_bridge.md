@@ -91,3 +91,5 @@ ping 10.0.0.1
 
 ping 10.0.0.10
 ```
+
+If that worked, you're done. Now it's time to add [a second host](03_multiple_host_bridge.md) with its own bridge and OpenVz containers.
