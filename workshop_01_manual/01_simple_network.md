@@ -23,7 +23,7 @@ sudo vzctl create 101 --ostemplate centos-6-x86_64-minimal --config basic
 This will create a new OpenVz guest called *101* which is not started yet. Before we start it, we are going to add a network interface (NIC) to it.
 
 ```
-sudo bash -c echo "'NETIF=\"ifname=eth0,bridge=br0,mac=10:54:FF:00:00:01,host_ifname=tap0,host_mac=10:54:FF:00:01:01\"' >> /etc/vz/conf/101.conf"
+sudo bash -c "echo 'NETIF=\"ifname=eth0,bridge=br0,mac=10:54:FF:00:00:01,host_ifname=tap0,host_mac=10:54:FF:00:01:01\"' >> /etc/vz/conf/101.conf"
 ```
 
 The above line tells the OpenVz guest to create a *veth pair* when it starts up. That means it will create a NIC on the host (Manual1) called `tap0` which is connected directly to the NIC `eth0` on the guest (101). You can imagine this as if there's a network cable with one end plugged into the host and the other end plugged into the guest.
