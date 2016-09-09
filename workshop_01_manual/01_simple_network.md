@@ -84,3 +84,5 @@ You should now be able to ping the host and vice versa.
 ```
 ping 10.0.0.1
 ```
+
+If OpenVz container 101 and host Manual1 were able to ping each other, you are done. Move on to [the next exercise](02_single_host_bridge.md).
