@@ -55,12 +55,14 @@ On **Manual1** run:
 
 ```
 sudo brctl addif br0 eth0
+sudo ip link set eth0 up
 ```
 
 Now run the same on **Manual2**:
 
 ```
 sudo brctl addif br0 eth0
+sudo ip link set eth0 up
 ```
 
 ![Bridges connected](../images/01_03_03-bridge_connected.png)
