@@ -79,6 +79,7 @@ Enter the new guest (102) and assign an IP address to it.
 sudo vzctl enter 102
 
 ip addr add 10.0.0.11/24 dev eth0
+ip link set eth0 up
 ```
 
 ![Tap1 enslaved](../images/01_02_04-bridge_both_attached.png)
