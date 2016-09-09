@@ -22,7 +22,7 @@ We will use the Redhat package manager `yum` to install Wakame-vdc. We will have
 First add Axsh's Wakame-vdc yum repository.
 
 ```
-sudo curl -o /etc/yum.repos.d/wakame-vdc-stable.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/yum_repositories/wakame-vdc-stable.repo
+sudo curl -o /etc/yum.repos.d/wakame-vdc-develop.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/yum_repositories/wakame-vdc-develop.repo
 ```
 
 Wakame-vdc can work with OpenVz, KVM and LXC. Today we'll be working with OpenVz. Set up OpenVz's yum repository as well and tell the OS to trust it by assing its GPG key.
