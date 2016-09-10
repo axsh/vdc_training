@@ -2,6 +2,27 @@
 
 ## Assignment
 
+You will be provided this environment.
+
+![Assignment empty](images/e_00_assignment_empty.png)
+
+#### Host 1
+
+* **Eth0** is attached to the **instances** network with IP address `192.168.5.11`.
+* **Eth1** is attached to the **management** network with IP address `172.16.5.11`.
+
+#### Host 2
+
+* **Eth0** is attached to the **instances** network with IP address `192.168.5.12`.
+* **Eth1** is attached to the **management** network. No IP address set yet.
+
+#### Host 3
+
+* **Eth0** is attached to the **instances** network with IP address `192.168.5.13`.
+* **Eth1** is attached to the **management** network. No IP address set yet.
+
+The assignment is to create the following:
+
 ![Assignment image](images/e_01_assignment.png)
 
 #### Part 1: Install and configure Wakame-vdc
@@ -16,23 +37,15 @@
 * Mysql
 * Mussel
 
-Eth0 is attached to the management network.
-
 #### Host 2
 
 * HVA
-
-Eth0 is connected to instances network
-Eth1 is connected to management network
 
 You will need to set up the bridges so both instances and load balancer can work here.
 
 #### Host 3
 
 * HVA
-
-Eth0 is connected to instances network
-Eth1 is connected to management network
 
 You will need to set up the bridges so both instances and load balancer can work here.
 
