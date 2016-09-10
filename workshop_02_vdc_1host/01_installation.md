@@ -81,7 +81,7 @@ TYPE=Bridge
 BOOTPROTO=static
 ONBOOT=yes
 NM_CONTROLLED=no
-IPADDR=192.168.4.10
+IPADDR=192.168.4.21
 NETMASK=255.255.255.0
 GATEWAY=192.168.4.1
 DNS1=8.8.8.8
@@ -155,7 +155,12 @@ Add the HVA to Wakame-vdc's database. We can use the `vdc-manage` tool for this.
 Next we will need to set up machine images. Some machine images should already be prepared in your home directory. Move them to a more suitable location.
 
 ```
-sudo mv ~/images /var/lib/wakame-vdc/
+sudo mkdir /var/lib/wakame-vdc/images
+sudo mv ~/images/lb-centos6.6-stud.x86_64.openvz.md.raw.tar.gz /var/lib/wakame-vdc/images/
+sudo mv ~/images/lbnode.x86_64.openvz.md.raw.tar.gz /var/lib/wakame-vdc/images/
+sudo mv ~/images/ubuntu-14.04.3-x86_64-30g-passwd-login-enabled.raw.tgz /var/lib/wakame-vdc/images/
+
+rmdir ~/images
 ```
 
 Next we are going to add many records to Wakame-vdc's database. We will use `vdc-manage` in interactive mode. That way it only needs to make a database connection once, resulting in less overhead.
