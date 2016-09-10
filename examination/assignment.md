@@ -1,7 +1,5 @@
 # Examination
 
-## Assignment
-
 You will be provided this environment.
 
 ![Assignment empty](images/e_00_assignment_empty.png)
@@ -20,6 +18,8 @@ You will be provided this environment.
 
 * **Eth0** is attached to the **instances** network with IP address `192.168.5.13`.
 * **Eth1** is attached to the **management** network. No IP address set yet.
+
+## Assignment
 
 The assignment is to create the following:
 
