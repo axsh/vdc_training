@@ -30,7 +30,7 @@ TYPE=Bridge
 BOOTPROTO=static
 ONBOOT=yes
 NM_CONTROLLED=no
-IPADDR=172.16.0.10
+IPADDR=172.16.0.21
 NETMASK=255.255.255.0
 DNS1=8.8.8.8
 DELAY=0
@@ -203,10 +203,10 @@ Finall there is this line.
   amqp_server_uri 'amqp://example.com/'
 ```
 
-This line tells load balancers where they can find RabbitMQ. In our environment RabbitMQ is running on the **Wakame1** machine and we have just set up **Wakame1** with a NIC in the management network that has IP address `172.16.0.10`. Fill in that IP address here.
+This line tells load balancers where they can find RabbitMQ. In our environment RabbitMQ is running on the **Wakame1** machine and we have just set up **Wakame1** with a NIC in the management network that has IP address `172.16.0.21`. Fill in that IP address here.
 
 ```
-  amqp_server_uri 'amqp://172.16.0.10/'
+  amqp_server_uri 'amqp://172.16.0.21/'
 ```
 
 Restart DCMGR and Collector to load the changed configuration file.
@@ -234,7 +234,7 @@ service_type("lb", "LbServiceType") {
 
   # Please specify the addresses that can be referenced from within an instance of the load balancer.
   # amqp_server_uri is saved to userdata in instance of the load balancer.
-  amqp_server_uri 'amqp://172.16.0.10/'
+  amqp_server_uri 'amqp://172.16.0.21/'
 }
 ```
 
