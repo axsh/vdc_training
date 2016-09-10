@@ -47,7 +47,7 @@ We're done with Wakame1 for now. Use your SSH client to log into **Wakame2**.
 We are going to install HVA here much in the same way we installed it in Wakame1. First set up the yum repositories.
 
 ```
-sudo curl -o /etc/yum.repos.d/wakame-vdc-stable.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/yum_repositories/wakame-vdc-stable.repo
+sudo curl -o /etc/yum.repos.d/wakame-vdc-develop.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/yum_repositories/wakame-vdc-develop.repo
 
 sudo curl -o /etc/yum.repos.d/openvz.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/develop/rpmbuild/yum_repositories/openvz.repo
 
@@ -150,7 +150,7 @@ We also in to tell this HVA where RabbitMQ is running. In the same file, find th
 Uncomment it and fill in the IP address of Wakame1 on the management network.
 
 ```
-AMQP_ADDR=172.16.0.10
+AMQP_ADDR=172.16.0.21
 ```
 
 There should be some images prepared in your home directory just like in the Wakame1 machine. Copy them over the the right location.
@@ -190,7 +190,7 @@ D, [2016-09-07T21:19:51.533520 #2352] DEBUG -- ServiceNetfilter: Subscribing to:
 I, [2016-09-07T21:19:51.533796 #2352]  INFO -- NetfilterCache: updating cache from database
 D, [2016-09-07T21:19:51.534028 #2352] DEBUG -- ServiceNetfilter: Subscribing to: hva.demo2/vnic_destroyed
 D, [2016-09-07T21:19:51.534911 #2352] DEBUG -- ServiceNetfilter: Subscribing to: broadcast/debug/vnet
-2016-09-07 21:19:51 Node thr=#<Thread:0x007f609fd93d50> [INFO]: Started : AMQP Server=amqp://172.16.0.10/, ID=hva.demo2, token=eba45
+2016-09-07 21:19:51 Node thr=#<Thread:0x007f609fd93d50> [INFO]: Started : AMQP Server=amqp://172.16.0.21/, ID=hva.demo2, token=eba45
 ```
 
 Now try starting some instances. If everything went well, you should see that they are now being started on both Wakame1 and Wakame2 and all instances should be on the same network together. We have efficively created a VDC cloud.

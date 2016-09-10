@@ -11,6 +11,8 @@ To achieve auto-scaling in Wakame-vdc, we are going to take a very simple approa
 First of all, create a load balancer and assign an instance to it.
 
 ```
+echo '{"eth0":{"network":"nw-demo1"}}' > /tmp/vifs.json
+
 mussel load_balancer create \
   --balance-algorithm leastconn \
   --display-name "scaling_balancer" \
@@ -29,9 +31,17 @@ mussel instance create \
   --vifs /tmp/vifs.json \
   --display-name "lbnode1"
 
+rm /tmp/vifs.json
+
 # Wait until states are running.
 mussel load_balancer show lb-gbe0lluu | grep -e '^:state'
 mussel instance show i-dy7rn5cx | grep -e '^:state'
+```
+
+Next find out the instance's NIC uuid and register it to the load balancer.
+
+```
+mussel load_balancer register lb-gbe0lluu --vifs vif-87nuogob
 ```
 
 Now we will assume that this environment is always up. There is always one web server instance running but on peek times we want to increase the amount of web server instances.
