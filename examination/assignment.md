@@ -65,7 +65,7 @@ You are allowed to install and use the GUI if you prefer it but it is not requir
 #### Ex 1: Instance and security groups
 
 * Create 1 instance. It can be either lbnode or ubuntu.
-* Use security groups to open tcp port 22 and 80.
+* Use security groups to open tcp port 22.
 
 #### Ex 2: Load Balancing
 
