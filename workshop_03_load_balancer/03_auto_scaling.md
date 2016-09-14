@@ -125,8 +125,8 @@ Examples:
 # Scale up every day at 17:00
 0 17 * * * centos /home/centos/autoscale_script/scale_up.sh
 
-# Scale down every day at 22:00
-0 22 * * * centos /home/centos/autoscale_script/scale_up.sh
+# Scale down every day at 22:30
+30 22 * * * centos /home/centos/autoscale_script/scale_down.sh
 ```
 
 Every time you change this file, you will have to restart the Cron daemon.
