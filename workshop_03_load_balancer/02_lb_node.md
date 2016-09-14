@@ -96,6 +96,8 @@ mussel load_balancer register lb-o5osuocx --vifs vif-urd0y302
 
 Now when you make a http request to the load balancer's IP address, you will see that requests are being redirected to Instance A and Instance B in turn.
 
+**Remark:** This command has to be run from the **Manual1** machine. If you run it from Wakame1, it will be blocked even when security groups are enabled. Security groups only work for machines other than the host. When you need to do maintenance from the host, you can enter instances using the `sudo vzlist` and `sudo vzctl enter i-4qm2geq9` commands.
+
 ```
 curl 192.168.4.51
 #Output: i-4qm2geq9
