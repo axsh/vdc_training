@@ -54,6 +54,16 @@ Install and configure the following Wakame-vdc components.
   - **Br0** with IP address `192.168.5.13` connected to instances network.
   - **Br1** with IP address `172.16.5.13` connected to management network.
 
+#### Hints
+
+* Remember to reboot after installing OpenVz (to load the OpenVz kernel)
+* Make sure the default gateway is **192.168.5.1** (not 172.16.5.1)
+* dcmgr is on host 1. That means vdc-manage is on host 1
+* Run the `scale_up.sh` and `scale_down.sh` scripts manually first to make sure they work
+* The instances network is **192.168.5.0/24**. It is **NOT** 192.168.4.0/24.
+* The management network is **172.16.5.0/24**. It is **NOT** 172.16.0.0/24.
+* Remember how you had to ssh/curl from Manual1 because of the firewall? The thing is you can't get network connectivity form the **host** to the instances. There is no HVA on the *host 1* machine so you can ssh/curl to instances from host 1
+
 ### Part 2: Set up instances
 
 The machine images are provided in `~/images` on Host 2 and Host 3. They are the same images used in the exercises.
