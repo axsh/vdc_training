@@ -63,6 +63,7 @@ Install and configure the following Wakame-vdc components.
 * The instances network is **192.168.5.0/24**. It is **NOT** 192.168.4.0/24.
 * The management network is **172.16.5.0/24**. It is **NOT** 172.16.0.0/24.
 * Remember how you had to ssh/curl from Manual1 because of the firewall? The thing is you can't get network connectivity form the **host** to the instances. There is no HVA on the *host 1* machine so you can ssh/curl to instances from host 1
+* The drawing is correct this time. Eth0 and Eth1 are **not** reversed.
 
 ### Part 2: Set up instances
 
