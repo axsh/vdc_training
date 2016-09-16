@@ -64,6 +64,7 @@ Install and configure the following Wakame-vdc components.
 * The management network is **172.16.5.0/24**. It is **NOT** 172.16.0.0/24.
 * Remember how you had to ssh/curl from Manual1 because of the firewall? The thing is you can't get network connectivity form the **host** to the instances. There is no HVA on the *host 1* machine so you can ssh/curl to instances from host 1
 * The drawing is correct this time. Eth0 and Eth1 are **not** reversed.
+* If you get error `Channel 3 was closed. You can't use it any more`, it means that RabbitMQ's queues got messed up. To fix it, stop dcmgr, collector and all hva. Restart RabbitMQ. Now start dcmgr, collector and all hva again.
 
 ### Part 2: Set up instances
 
